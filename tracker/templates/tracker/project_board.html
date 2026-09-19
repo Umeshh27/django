@@ -1,0 +1,99 @@
+{% extends "tracker/base.html" %}
+
+{% block title %}{{ project.name }} - Issue Board{% endblock %}
+
+{% block content %}
+<nav class="breadcrumb">
+    <a href="{% url 'project_list' %}">&larr; Back to Projects</a>
+    <span>/</span>
+    <span>{{ project.name }}</span>
+</nav>
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">{{ project.name }}</h1>
+        <p class="page-subtitle">{{ project.description|default:"Interactive Kanban Board with Progressive Enhancement" }}</p>
+    </div>
+</div>
+
+<!-- Standard HTML Form for Creating Issues (Works seamlessly without JS) -->
+<section class="create-issue-panel" id="create-issue-section">
+    <h2 class="panel-title">➕ Create New Issue</h2>
+    <form method="post" action="{% url 'issue_create' project.id %}" id="create-issue-form">
+        {% csrf_token %}
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="id_title" class="form-label">Issue Title *</label>
+                <input type="text" name="title" id="id_title" class="form-control" placeholder="e.g. Implement OAuth login" required>
+            </div>
+            <div class="form-group">
+                <label for="id_status" class="form-label">Initial Status</label>
+                <select name="status" id="id_status" class="form-select">
+                    <option value="To Do" selected>To Do</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Done">Done</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="id_description" class="form-label">Description</label>
+            <textarea name="description" id="id_description" class="form-control" rows="2" placeholder="Provide context, acceptance criteria, or reproduction steps..."></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary" id="btn-create-issue">Create Issue</button>
+    </form>
+</section>
+
+<!-- Kanban Columns for each status: 'To Do', 'In Progress', 'Done' -->
+<div class="board-columns" id="kanban-board">
+    <!-- To Do Section -->
+    <section class="board-column column-todo" id="section-todo">
+        <header class="column-header">
+            <h2 class="column-header-title">
+                <span>To Do</span>
+            </h2>
+            <span class="column-count" id="count-todo">{{ todo_issues.count }}</span>
+        </header>
+        <div class="column-issues" id="issues-todo">
+            {% for issue in todo_issues %}
+                {% include "tracker/_issue_card.html" with issue=issue %}
+            {% empty %}
+                <p style="color: var(--text-muted); font-size: 0.85rem; font-style: italic;">No issues in To Do.</p>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- In Progress Section -->
+    <section class="board-column column-in-progress" id="section-in-progress">
+        <header class="column-header">
+            <h2 class="column-header-title">
+                <span>In Progress</span>
+            </h2>
+            <span class="column-count" id="count-in-progress">{{ in_progress_issues.count }}</span>
+        </header>
+        <div class="column-issues" id="issues-in-progress">
+            {% for issue in in_progress_issues %}
+                {% include "tracker/_issue_card.html" with issue=issue %}
+            {% empty %}
+                <p style="color: var(--text-muted); font-size: 0.85rem; font-style: italic;">No issues in Progress.</p>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Done Section -->
+    <section class="board-column column-done" id="section-done">
+        <header class="column-header">
+            <h2 class="column-header-title">
+                <span>Done</span>
+            </h2>
+            <span class="column-count" id="count-done">{{ done_issues.count }}</span>
+        </header>
+        <div class="column-issues" id="issues-done">
+            {% for issue in done_issues %}
+                {% include "tracker/_issue_card.html" with issue=issue %}
+            {% empty %}
+                <p style="color: var(--text-muted); font-size: 0.85rem; font-style: italic;">No completed issues.</p>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+{% endblock %}

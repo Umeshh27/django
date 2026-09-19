@@ -1,0 +1,9 @@
+{% if comment %}
+<div class="comment-bubble" id="comment-{{ comment.id }}">
+    <div class="comment-header">
+        <span class="comment-author">Contributor</span>
+        <time class="comment-time">{{ comment.created_at|date:"M d, Y H:i" }}</time>
+    </div>
+    <div class="comment-content">{{ comment.content|linebreaksbr }}</div>
+</div>
+{% endif %}

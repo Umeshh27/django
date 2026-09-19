@@ -1,0 +1,51 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Issue Tracker - Server Rendered with Progressive Enhancement{% endblock %}</title>
+    <meta name="description" content="A server-rendered issue tracking application built with Django and progressively enhanced using HTMX.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Design System Stylesheet -->
+    <link rel="stylesheet" href="{% static 'tracker/css/styles.css' %}">
+    
+    <!-- HTMX for Progressive Enhancement (Zero-refresh swaps) -->
+    <script src="https://unpkg.com/htmx.org@1.9.12" integrity="sha384-ujb1lZYygJmzgSwoxRggbCHcjc0rB2XoMVMf3050wVNG4hyUEGnQ542Wfl3ASgkL" crossorigin="anonymous"></script>
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+    <header class="site-header">
+        <div class="nav-container">
+            <a href="{% url 'project_list' %}" class="brand" id="brand-logo">
+                <div class="brand-icon">⚡</div>
+                <div class="brand-name">IssueTracker</div>
+            </a>
+            
+            <nav class="nav-links">
+                <a href="{% url 'project_list' %}" class="nav-link" id="nav-projects">Projects</a>
+                <div class="nav-badges">
+                    <span class="badge-pill badge-ssr" title="Full SSR functional without JavaScript">SSR Ready</span>
+                    <span class="badge-pill badge-htmx" title="Dynamic DOM swaps via HTMX">HTMX Enhanced</span>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-wrapper" id="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="site-footer">
+        <p>Built with <strong>Django</strong> (Server-Side Rendering) &bull; Progressively Enhanced with <strong>HTMX</strong> &bull; Backed by <strong>PostgreSQL</strong></p>
+    </footer>
+
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

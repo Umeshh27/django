@@ -1,0 +1,37 @@
+{% extends "tracker/base.html" %}
+
+{% block title %}Projects - Issue Tracker{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Projects</h1>
+        <p class="page-subtitle">Select a project to inspect the progressive enhancement issue board, triage tasks, or track progress.</p>
+    </div>
+</div>
+
+<div class="projects-grid">
+    {% for project in projects %}
+    <a href="{% url 'project_board' project.id %}" class="project-card" id="project-card-{{ project.id }}">
+        <div>
+            <div class="project-card-header">
+                <h2 class="project-card-title">{{ project.name }}</h2>
+                <span class="badge-pill badge-ssr">Project #{{ project.id }}</span>
+            </div>
+            <p class="project-card-desc">{{ project.description|default:"No description provided." }}</p>
+        </div>
+        
+        <div class="project-card-stats">
+            <span><strong>{{ project.issues.count }}</strong> total issue{{ project.issues.count|pluralize }}</span>
+            <span>&bull;</span>
+            <span>Click to open board &rarr;</span>
+        </div>
+    </a>
+    {% empty %}
+    <div style="grid-column: 1 / -1; padding: 3rem; text-align: center; background: var(--bg-secondary); border-radius: var(--radius-lg);">
+        <h3>No projects found.</h3>
+        <p style="color: var(--text-secondary); margin-top: 0.5rem;">Seed data will populate initial projects automatically.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

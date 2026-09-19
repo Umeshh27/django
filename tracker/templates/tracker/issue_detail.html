@@ -1,0 +1,78 @@
+{% extends "tracker/base.html" %}
+
+{% block title %}{{ issue.title }} - Issue Tracker{% endblock %}
+
+{% block content %}
+<nav class="breadcrumb">
+    <a href="{% url 'project_board' issue.project.id %}">&larr; Back to {{ issue.project.name }} Board</a>
+    <span>/</span>
+    <span>Issue #{{ issue.id }}</span>
+</nav>
+
+<article class="detail-card" id="issue-detail-card">
+    <div class="page-header" style="margin-bottom: 1.5rem;">
+        <div>
+            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+                <span class="status-badge {% if issue.status == 'To Do' %}status-todo{% elif issue.status == 'In Progress' %}status-in-progress{% else %}status-done{% endif %}" id="detail-status-badge">
+                    {{ issue.status }}
+                </span>
+                <span style="color: var(--text-muted); font-size: 0.85rem;">Issue #{{ issue.id }} &bull; Project: {{ issue.project.name }}</span>
+            </div>
+            <h1 class="page-title">{{ issue.title }}</h1>
+        </div>
+    </div>
+
+    <div style="background: var(--bg-primary); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 2rem;">
+        <h3 style="font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); margin-bottom: 0.5rem;">Description</h3>
+        <p style="font-size: 0.95rem; line-height: 1.6; color: var(--text-primary); white-space: pre-wrap;">{{ issue.description|default:"No description provided for this issue." }}</p>
+    </div>
+
+    <!-- Status Change Form on Detail Page -->
+    <div style="margin-bottom: 2rem; padding: 1rem; background: var(--bg-surface); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+        <span style="font-size: 0.9rem; font-weight: 600;">Update Status:</span>
+        <form method="post" action="{% url 'update_issue_status' issue.id %}" style="display: flex; gap: 0.5rem;">
+            {% csrf_token %}
+            {% for choice in issue.STATUS_CHOICES %}
+                {% if choice.0 != issue.status %}
+                    <button type="submit" name="status" value="{{ choice.0 }}" class="action-btn">
+                        Move to {{ choice.0 }}
+                    </button>
+                {% endif %}
+            {% endfor %}
+        </form>
+    </div>
+
+    <!-- Comments Section -->
+    <section class="comments-section" id="comments-section">
+        <h2 class="comments-title">
+            <span>💬 Discussion &amp; Comments</span>
+        </h2>
+
+        <div class="comments-list" id="comments-list">
+            {% for comment in comments %}
+                {% include "tracker/_comment.html" with comment=comment %}
+            {% empty %}
+                <p id="no-comments-msg" style="color: var(--text-muted); font-size: 0.9rem; font-style: italic;">No comments yet. Be the first to start the conversation!</p>
+            {% endfor %}
+        </div>
+
+        <!-- Add Comment Form: Enhanced with HTMX, works seamlessly with standard SSR -->
+        <div class="create-issue-panel" style="margin-bottom: 0;">
+            <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.75rem;">Leave a Comment</h3>
+            <form method="post" action="{% url 'add_comment' issue.id %}"
+                  hx-post="{% url 'add_comment' issue.id %}"
+                  hx-target="#comments-list"
+                  hx-swap="beforeend"
+                  hx-on::after-request="this.reset()"
+                  id="add-comment-form">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="id_content" class="form-label" style="display: none;">Comment</label>
+                    <textarea name="content" id="id_content" class="form-control" rows="3" placeholder="Write your comment here..." required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary" id="btn-add-comment">Post Comment</button>
+            </form>
+        </div>
+    </section>
+</article>
+{% endblock %}

@@ -1,0 +1,67 @@
+<div class="issue-card" id="issue-{{ issue.id }}" data-issue-id="{{ issue.id }}" data-status="{{ issue.status }}">
+    <div class="issue-card-top">
+        <a href="{% url 'issue_detail' issue.id %}" class="issue-title-link" id="issue-title-{{ issue.id }}">
+            {{ issue.title }}
+        </a>
+        <span class="status-badge {% if issue.status == 'To Do' %}status-todo{% elif issue.status == 'In Progress' %}status-in-progress{% else %}status-done{% endif %}">
+            {{ issue.status }}
+        </span>
+    </div>
+
+    {% if issue.description %}
+    <p class="issue-card-desc">{{ issue.description|truncatewords:20 }}</p>
+    {% endif %}
+
+    <div class="issue-card-footer">
+        <span class="issue-meta-item">
+            💬 {{ issue.comments.count }} comment{{ issue.comments.count|pluralize }}
+        </span>
+        <span class="issue-meta-item">
+            🕒 {{ issue.created_at|date:"M d, H:i" }}
+        </span>
+    </div>
+
+    <div class="issue-actions-form">
+        {% if issue.status != 'To Do' %}
+        <form method="post" action="{% url 'update_issue_status' issue.id %}"
+              hx-post="{% url 'update_issue_status' issue.id %}"
+              hx-target="#issue-{{ issue.id }}"
+              hx-swap="outerHTML"
+              style="display:inline;">
+            {% csrf_token %}
+            <input type="hidden" name="status" value="To Do">
+            <button type="submit" class="action-btn btn-move-todo" id="btn-todo-{{ issue.id }}">
+                &larr; To Do
+            </button>
+        </form>
+        {% endif %}
+
+        {% if issue.status != 'In Progress' %}
+        <form method="post" action="{% url 'update_issue_status' issue.id %}"
+              hx-post="{% url 'update_issue_status' issue.id %}"
+              hx-target="#issue-{{ issue.id }}"
+              hx-swap="outerHTML"
+              style="display:inline;">
+            {% csrf_token %}
+            <input type="hidden" name="status" value="In Progress">
+            <button type="submit" class="action-btn btn-move-progress" id="btn-progress-{{ issue.id }}">
+                &rarr; In Progress
+            </button>
+        </form>
+        {% endif %}
+
+        {% if issue.status != 'Done' %}
+        <form method="post" action="{% url 'update_issue_status' issue.id %}"
+              hx-post="{% url 'update_issue_status' issue.id %}"
+              hx-target="#issue-{{ issue.id }}"
+              hx-swap="outerHTML"
+              style="display:inline;">
+            {% csrf_token %}
+            <input type="hidden" name="status" value="Done">
+            <button type="submit" class="action-btn btn-move-done" id="btn-done-{{ issue.id }}">
+                &check; Done
+            </button>
+        </form>
+        {% endif %}
+    </div>
+</div>
